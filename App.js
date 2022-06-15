@@ -1,6 +1,5 @@
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { useEffect } from "react/cjs/react.development";
 import connect, { sql } from "@databases/expo";
 import Diagnosis from "./src/pages/Diagnosis";
 import Home from "./src/pages/Home";

@@ -1,7 +1,6 @@
 import { StyleSheet, Text, View, TouchableHighlight } from "react-native";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { faAngleRight } from "@fortawesome/free-solid-svg-icons";
-import tw from "twrnc";
 import tw2 from "../../tw2";
 
 const FormattedDate = ({ timestamp }) => {
@@ -17,12 +16,16 @@ export default function Card({ navigation, data }) {
     <TouchableHighlight
       activeOpacity={0.6}
       underlayColor="#DDDDDD"
-      onPress={() => navigation.navigate("DiagnosisHome", { data: data })}
+      onPress={() =>
+        navigation.navigate("DiagnosisHome", {
+          data: { ...data, artikel: data.artikel.split(",") },
+        })
+      }
       style={styles.card}
     >
       <>
         <View style={styles.cardLeftContent}>
-          <Text style={[styles.textBold, tw`text-lg`]}>{data.nama}</Text>
+          <Text style={[styles.textBold, tw2`text-lg`]}>{data.nama}</Text>
           <FormattedDate timestamp={data.timestamp} />
         </View>
         <View style={styles.cardRightContent}>

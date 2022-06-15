@@ -5,7 +5,6 @@ import {
   TouchableHighlight,
   Image,
 } from "react-native";
-import tw from "twrnc";
 import tw2 from "../../tw2";
 
 const FormattedDate = ({ timestamp }) => {
@@ -21,20 +20,33 @@ export default function CardMain({ navigation, data }) {
     <TouchableHighlight
       activeOpacity={0.6}
       underlayColor="#DDDDDD"
-      onPress={() => navigation.navigate("DiagnosisHome", { data: data })}
-      style={[styles.card, tw`border-2`, tw2`border-hijau`]}
+      onPress={() => {
+        if (data && data.artikel) {
+          navigation.navigate("DiagnosisHome", {
+            data: { ...data, artikel: data.artikel.split(",") },
+          });
+        }
+      }}
+      style={[styles.card, tw2`border-2 border-hijau`]}
     >
       <>
         <View style={[styles.cardLeftContent]}>
-          <Text style={[tw`text-xs font-bold`, tw2`text-hijau`]}>
-            Kondisi Terbaru
-          </Text>
-          <Text style={[styles.textBold, tw`text-lg`]}>{data.nama}</Text>
-          <FormattedDate timestamp={data.timestamp} />
+          <Text style={tw2`text-xs font-bold text-hijau`}>Kondisi Terbaru</Text>
+          {data.nama ? (
+            <>
+              <Text style={[styles.textBold, tw2`text-lg`]}>{data.nama}</Text>
+
+              <FormattedDate timestamp={data.timestamp} />
+            </>
+          ) : (
+            <Text style={tw2`text-abu text-sm`}>
+              Anda belum pernah periksa. Klik tombol kamera untuk memulai.
+            </Text>
+          )}
         </View>
         <View style={styles.cardRightContent}>
           <Image
-            style={tw`absolute right-2 bottom-1`}
+            style={tw2`absolute right-2 bottom-1`}
             source={require("../assets/health-image.png")}
           />
         </View>
@@ -52,7 +64,7 @@ const styles = StyleSheet.create({
     display: "flex",
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "flex-start",
+    justifyContent: "space-between",
     padding: 10,
   },
   textBold: {
@@ -61,7 +73,7 @@ const styles = StyleSheet.create({
   cardLeftContent: {
     display: "flex",
     flexDirection: "column",
-    width: "70%",
+    width: "55%",
   },
   cardRightContent: {
     display: "flex",

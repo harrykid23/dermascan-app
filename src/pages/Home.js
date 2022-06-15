@@ -1,15 +1,20 @@
 import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Text, View, ScrollView } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  View,
+  ScrollView,
+  TouchableHighlight,
+  Alert,
+} from "react-native";
 import { useNavigationState } from "@react-navigation/native";
-import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
-import { faAngleRight } from "@fortawesome/free-solid-svg-icons";
-import tw from "twrnc";
 import connect, { sql } from "@databases/expo";
 import BottomNavigator from "../components/BottomNavigator";
 import Card from "../components/Card";
 import CardMain from "../components/CardMain";
 import tw2 from "../../tw2";
-import { useEffect, useState } from "react/cjs/react.development";
+// import { useEffect, useState } from "react/cjs/react.production.min";
+import { useEffect, useState } from "react";
 
 const db = connect("dermascan");
 
@@ -20,12 +25,36 @@ export default function Home(props) {
     if (navState) {
       db.tx(function* (tx) {
         const historyList = yield tx.query(sql`
-          SELECT disease as nama, description as deskripsi, article as artikel, date as timestamp FROM history ORDER BY date DESC;
+          SELECT id, disease as nama, description as deskripsi, article as artikel, date as timestamp FROM history ORDER BY date DESC;
         `);
         setHistory(historyList || []);
       });
     }
   }, [navState]);
+
+  const showDeleteAlert = () =>
+    Alert.alert(
+      "Konfirmasi",
+      "Apakah Anda yakin ingin menghapus semua riwayat?",
+      [
+        {
+          text: "Cancel",
+        },
+        {
+          text: "OK",
+          onPress: function () {
+            db.tx(function* (tx) {
+              const res = yield tx.query(sql`
+                DELETE FROM history WHERE 1;
+              `);
+              if (res) {
+                setHistory(res);
+              }
+            });
+          },
+        },
+      ]
+    );
 
   return (
     <View style={[styles.container, tw2`bg-biru-muda`]}>
@@ -40,13 +69,32 @@ export default function Home(props) {
       >
         Riwayat
       </Text>
-      <View style={tw`w-full flex flex-col items-center`}>
+      <View style={tw2`w-full flex flex-col items-center`}>
         <CardMain navigation={props.navigation} data={history[0] || {}} />
-        <Text
-          style={[tw`font-bold mt-3 mb-1`, { color: "#5787AF", width: "90%" }]}
+        <View
+          style={[
+            tw2`flex flex-row items-center justify-between mt-3 mb-1`,
+            { width: "90%" },
+          ]}
         >
-          Riwayat Kondisi
-        </Text>
+          <Text style={[tw2`font-bold`, { color: "#5787AF" }]}>
+            Riwayat Kondisi
+          </Text>
+          {history.length ? (
+            <TouchableHighlight
+              activeOpacity={0.6}
+              underlayColor={false}
+              onPress={() => {
+                showDeleteAlert();
+              }}
+              style={tw2`font-bold rounded-xl px-2 py-1 bg-red-500 border-2 border-red-700`}
+            >
+              <Text style={tw2`text-white text-xs`}>Hapus semua</Text>
+            </TouchableHighlight>
+          ) : (
+            <></>
+          )}
+        </View>
       </View>
       <ScrollView style={styles.contentWrapper1}>
         <View style={styles.contentWrapper2}>
@@ -54,16 +102,6 @@ export default function Home(props) {
             history.map((item, index) => (
               <Card key={index} navigation={props.navigation} data={item} />
             ))}
-
-          {/* <Card navigation={props.navigation} />
-          <Card navigation={props.navigation} />
-          <Card navigation={props.navigation} />
-          <Card navigation={props.navigation} />
-          <Card navigation={props.navigation} />
-          <Card navigation={props.navigation} />
-          <Card navigation={props.navigation} />
-          <Card navigation={props.navigation} />
-          <Card navigation={props.navigation} /> */}
         </View>
       </ScrollView>
       <View style={{ height: 70, backgroundColor: "white", width: "100%" }}>
